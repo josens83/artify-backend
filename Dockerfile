@@ -1,24 +1,27 @@
-# Node.js 18 Alpine 이미지 사용 (경량화)
-FROM node:18-alpine
+﻿FROM node:18-alpine
 
-# 작업 디렉토리 설정
+# 빌드 도구 설치
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    gcc \
+    musl-dev
+
 WORKDIR /app
 
-# package.json과 package-lock.json 복사
+# package.json 복사
 COPY package*.json ./
 
 # 의존성 설치
-RUN npm ci --only=production
+RUN npm ci --build-from-source
 
-# 애플리케이션 코드 복사
+# 앱 복사
 COPY . .
 
-# 포트 노출
+# 데이터 디렉토리 생성
+RUN mkdir -p data
+
 EXPOSE 3001
 
-# 헬스체크
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
-# 애플리케이션 실행
 CMD ["node", "server.js"]
