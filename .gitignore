@@ -1,7 +1,7 @@
 ﻿node_modules/
 .env
 .env.local
-.env.production
 *.env
-npm-debug.log*
 data/*.db
+npm-debug.log*
+package-lock.json
