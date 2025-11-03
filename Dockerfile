@@ -1,12 +1,7 @@
 ﻿FROM node:18-alpine
 
-# 빌드 도구 설치
-RUN apk add --no-cache \
-    python3 \
-    make \
-    g++ \
-    gcc \
-    musl-dev
+# 빌드 도구 설치 (better-sqlite3용)
+RUN apk add --no-cache python3 make g++ gcc musl-dev
 
 WORKDIR /app
 
@@ -19,7 +14,7 @@ RUN npm ci --build-from-source
 # 앱 복사
 COPY . .
 
-# 데이터 디렉토리 생성
+# 데이터 디렉토리
 RUN mkdir -p data
 
 EXPOSE 3001
