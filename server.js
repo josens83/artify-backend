@@ -71,7 +71,7 @@ const db = {
   }
 };
 
-// CORS Middleware - 수정됨!
+// CORS Middleware - Vercel 허용 추가!
 app.use(cors({
   origin: [
     'https://artify-ruddy.vercel.app',
