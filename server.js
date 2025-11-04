@@ -8,6 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// 간단한 in-memory 데이터베이스
 const db = {
   users: new Map(),
   projects: new Map(),
@@ -70,9 +71,25 @@ const db = {
   }
 };
 
-app.use(cors());
+// CORS Middleware - 수정됨!
+app.use(cors({
+  origin: [
+    'https://artify-ruddy.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Preflight 요청 처리
+app.options('*', cors());
+
 app.use(express.json());
 
+// Auth middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -84,10 +101,16 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'artify-backend', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'healthy',
+    service: 'artify-backend',
+    timestamp: new Date().toISOString()
+  });
 });
 
+// Auth routes
 app.post('/api/register', async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -124,6 +147,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Project routes
 app.get('/api/projects', authenticateToken, (req, res) => {
   try {
     const projects = db.getProjectsByUserId(req.user.id);
@@ -193,4 +217,5 @@ app.listen(PORT, () => {
   console.log('Server running on port ' + PORT);
   console.log('Environment: ' + (process.env.NODE_ENV || 'development'));
   console.log('In-memory database initialized');
+  console.log('CORS enabled for Vercel deployment');
 });
